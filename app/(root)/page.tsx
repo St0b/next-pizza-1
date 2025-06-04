@@ -9,6 +9,15 @@ import {
 import { Suspense } from 'react';
 import { GetSearchParams, findPizzas } from '@/shared/lib/find-pizzas';
 
+const FiltersFallback = () => (
+  <div className="w-[250px]">
+    <div>Loading filters...</div>
+  </div>
+);
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function Home({ searchParams }: { searchParams: GetSearchParams }) {
   const categories = await findPizzas(searchParams);
 

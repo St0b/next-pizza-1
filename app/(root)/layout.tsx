@@ -2,6 +2,9 @@ import { Header } from '@/shared/components/shared';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Next Pizza | Главная',
 };
