@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Order not found' });
     }
 
-    const isSucceeded = body.object.status === 'succeeded';
+    const isSucceeded = body.object.status === 'Succeeded';
 
     await prisma.order.update({
       where: {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     });
 
     const items = JSON.parse(order?.items as string) as CartItemDTO[];
-    
+
     console.log('Payment status:', body.object.status);
 
     if (isSucceeded) {
