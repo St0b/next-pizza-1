@@ -5,6 +5,7 @@ import { findOrCreateCart } from '@/shared/lib/find-or-create-cart';
 import { CreateCartItemValues } from '@/shared/services/dto/cart.dto';
 import { updateCartTotalAmount } from '@/shared/lib/update-cart-total-amount';
 
+export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get('cartToken')?.value;

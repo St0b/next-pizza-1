@@ -10,6 +10,7 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { hashSync } from 'bcrypt';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic'
 export async function createOrder(data: CheckoutFormValues) {
   try {
     const cookieStore = cookies();
