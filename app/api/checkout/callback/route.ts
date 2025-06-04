@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
     });
 
     const items = JSON.parse(order?.items as string) as CartItemDTO[];
+    
+    console.log('Payment status:', body.object.status);
 
     if (isSucceeded) {
       await sendEmail(
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
         OrderSuccessTemplate({ orderId: order.id, items }),
       );
     } else {
-      // Письмо о неуспешной оплате
+      
     }
   } catch (error) {
     console.log('[Checkout Callback] Error:', error);

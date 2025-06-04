@@ -10,9 +10,9 @@ export const OrderSuccessTemplate: React.FC<Props> = ({ orderId, items }) => (
   <div>
     <h1>Спасибо за покупку! 🎉</h1>
 
-    <p>Ваш заказ #{orderId} оплачен. Список товаров:</p>Add commentMore actions
+    <p>Ваш заказ #{orderId} оплачен. Список товаров:</p>
 
-    <hr />
+    <hr/>
 
     <ul>
       {items.map((item) => (
