@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/prisma/prisma-client'
 
 export async function middleware() {
   // Сбрасываем соединение после каждого запроса
