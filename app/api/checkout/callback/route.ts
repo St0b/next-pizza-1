@@ -9,44 +9,84 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as PaymentCallbackData;
+    const body = await req.json() as PaymentCallbackData;
+    console.log('Yookassa callback received:', body);
 
-    const order = await prisma.order.findFirst({
-      where: {
-        id: Number(body.object.metadata.order_id),
-      },
+    if (!body.object.metadata?.order_id) {
+      return NextResponse.json({ error: 'Order ID missing' }, { status: 400 });
+    }
+
+    const orderId = Number(body.object.metadata.order_id);
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
     });
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' });
+      console.error(`Order not found: ${orderId}`);
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const isSucceeded = body.object.status === 'pending';
+    console.log(`Processing status: ${body.object.status} for order: ${orderId}`);
 
-    await prisma.order.update({
-      where: {
-        id: order.id,
-      },
-      data: {
-        status: isSucceeded ? OrderStatus.SUCCEEDED : OrderStatus.CANCELLED,
-      },
-    });
+    let newStatus: OrderStatus | undefined;
+    let sendSuccessEmail = false;
+    let sendFailureEmail = false;
 
-    const items = JSON.parse(order?.items as string) as CartItemDTO[];
+    switch (body.object.status) {
+      case 'succeeded':
+        newStatus = OrderStatus.SUCCEEDED;
+        sendSuccessEmail = true;
+        break;
+        
+      case 'waiting_for_capture': 
+        newStatus = OrderStatus.PENDING;
+        break;
+        
+      case 'canceled':
+        newStatus = OrderStatus.CANCELLED;
+        sendFailureEmail = true;
+        break;
+        
+      default:
+        console.warn(`Unhandled status: ${body.object.status}`);
+        break;
+    }
 
-    console.log('Payment status:', body.object.status);
+    if (newStatus) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: newStatus },
+      });
+      console.log(`Order ${order.id} updated to status: ${newStatus}`);
+    }
 
-    if (isSucceeded) {
+    let items: CartItemDTO[] = [];
+    try {
+      items = JSON.parse(order.items as string) as CartItemDTO[];
+    } catch (e) {
+      console.error('Failed to parse order items:', order.items, e);
+    }
+
+    if (sendSuccessEmail) {
       await sendEmail(
         order.email,
         'Next Pizza / Ваш заказ успешно оформлен 🎉',
-        OrderSuccessTemplate({ orderId: order.id, items }),
+        OrderSuccessTemplate({ orderId: order.id, items })
       );
-    } else {
-      
+      console.log(`Success email sent for order: ${order.id}`);
+    } 
+    else if (sendFailureEmail) {
+      await sendEmail(
+        order.email,
+        'Next Pizza / Ваш заказ не оформлен',
+        `<p>Заказ #${order.id} был отменен. Пожалуйста, попробуйте оформить заказ снова.</p>`
+      );
+      console.log(`Cancellation email sent for order: ${order.id}`);
     }
+
+    return NextResponse.json({ received: true });
   } catch (error) {
-    console.log('[Checkout Callback] Error:', error);
-    return NextResponse.json({ error: 'Server error' });
+    console.error('[PAYMENT CALLBACK ERROR]', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
