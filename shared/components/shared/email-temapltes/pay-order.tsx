@@ -1,26 +1,18 @@
-import { CartItemDTO } from "@/shared/services/dto/cart.dto";
-import React from "react";
+import React from 'react';
 
 interface Props {
   orderId: number;
-  items: CartItemDTO[];
+  totalAmount: number;
+  paymentUrl: string;
 }
 
-export const OrderSuccessTemplate: React.FC<Props> = ({ orderId, items }) => (
+export const PayOrderTemplate: React.FC<Props> = ({ orderId, totalAmount, paymentUrl }) => (
   <div>
-    <h1>Спасибо за покупку! 🎉</h1>
+    <h1>Заказ #{orderId}</h1>
 
-    <p>Ваш заказ #{orderId} оплачен. Список товаров:</p>
-
-    <hr />
-
-    <ul>
-      {items.map((item) => (
-        <li key={item.id}>
-          {item.productItem.product.name} | {item.productItem.price} ₽ x{" "}
-          {item.quantity} шт. = {item.productItem.price * item.quantity} ₽
-        </li>
-      ))}
-    </ul>
+    <p>
+      Оплатите заказ на сумму <b>{totalAmount} ₽</b>. Перейдите{' '}
+      <a href={paymentUrl}>по этой ссылке</a> для оплаты заказа.
+    </p>
   </div>
 );
