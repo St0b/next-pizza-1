@@ -33,16 +33,16 @@ export async function POST(req: NextRequest) {
     let sendFailureEmail = false;
 
     switch (body.object.status) {
-      case 'succeeded':
+      case 'payment.succeeded':
         newStatus = OrderStatus.SUCCEEDED;
         sendSuccessEmail = true;
         break;
         
-      case 'waiting_for_capture': 
+      case 'payment.waiting_for_capture': 
         newStatus = OrderStatus.PENDING;
         break;
         
-      case 'canceled':
+      case 'payment.canceled':
         newStatus = OrderStatus.CANCELLED;
         sendFailureEmail = true;
         break;
