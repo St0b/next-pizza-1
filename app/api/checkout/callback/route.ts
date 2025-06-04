@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Order not found' });
     }
 
-    const isSucceeded = body.object.status === 'Succeeded';
+    const isSucceeded = body.object.status === 'pending';
 
     await prisma.order.update({
       where: {
